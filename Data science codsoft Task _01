@@ -1,0 +1,267 @@
+
+Importing the Libraries and Dependencies
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import math
+import seaborn as sb
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+Data Collection and Processing
+# Loading the data from csv file and create Pandas DataFrame
+t_data = pd.read_csv('tested.csv')
+# print 5 rows of dataset.
+t_data.head()
+PassengerId	Survived	Pclass	Name	Sex	Age	SibSp	Parch	Ticket	Fare	Cabin	Embarked
+0	892	0	3	Kelly, Mr. James	male	34.5	0	0	330911	7.8292	NaN	Q
+1	893	1	3	Wilkes, Mrs. James (Ellen Needs)	female	47.0	1	0	363272	7.0000	NaN	S
+2	894	0	2	Myles, Mr. Thomas Francis	male	62.0	0	0	240276	9.6875	NaN	Q
+3	895	0	3	Wirz, Mr. Albert	male	27.0	0	0	315154	8.6625	NaN	S
+4	896	1	3	Hirvonen, Mrs. Alexander (Helga E Lindqvist)	female	22.0	1	1	3101298	12.2875	NaN	S
+# print number of rows and columns 
+t_data.shape
+(418, 12)
+# print the information of dataset
+t_data.info()
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 418 entries, 0 to 417
+Data columns (total 12 columns):
+ #   Column       Non-Null Count  Dtype  
+---  ------       --------------  -----  
+ 0   PassengerId  418 non-null    int64  
+ 1   Survived     418 non-null    int64  
+ 2   Pclass       418 non-null    int64  
+ 3   Name         418 non-null    object 
+ 4   Sex          418 non-null    object 
+ 5   Age          332 non-null    float64
+ 6   SibSp        418 non-null    int64  
+ 7   Parch        418 non-null    int64  
+ 8   Ticket       418 non-null    object 
+ 9   Fare         417 non-null    float64
+ 10  Cabin        91 non-null     object 
+ 11  Embarked     418 non-null    object 
+dtypes: float64(2), int64(5), object(5)
+memory usage: 39.3+ KB
+# find the number of missing values in each column
+t_data.isnull().sum()
+PassengerId      0
+Survived         0
+Pclass           0
+Name             0
+Sex              0
+Age             86
+SibSp            0
+Parch            0
+Ticket           0
+Fare             1
+Cabin          327
+Embarked         0
+dtype: int64
+# Removing the 'Cabin' column from dataFrame
+t_data = t_data.drop(columns = 'Cabin',axis = 1)
+# Finding the missing values in 'Age' columns by taking Mean.
+t_data['Age'].fillna(t_data['Age'].mean(), inplace = True)
+def change(x):
+    x=str(x)
+    x1=x.split(".")
+    if x1[1]>"5" :
+        return math.ceil(float(x))
+    elif x1[1]<="5":
+        return math.floor(float(x))
+t_data["Age"]=t_data["Age"].apply(change)
+# Finding the missing values in 'Fare' columns by taking Mean.
+t_data['Fare'].fillna(t_data['Fare'].mean(), inplace = True)
+# Checking the number of missing values in each column
+t_data.isnull().sum()
+PassengerId    0
+Survived       0
+Pclass         0
+Name           0
+Sex            0
+Age            0
+SibSp          0
+Parch          0
+Ticket         0
+Fare           0
+Embarked       0
+dtype: int64
+t_data.head()
+PassengerId	Survived	Pclass	Name	Sex	Age	SibSp	Parch	Ticket	Fare	Embarked
+0	892	0	3	Kelly, Mr. James	male	34	0	0	330911	7.8292	Q
+1	893	1	3	Wilkes, Mrs. James (Ellen Needs)	female	47	1	0	363272	7.0000	S
+2	894	0	2	Myles, Mr. Thomas Francis	male	62	0	0	240276	9.6875	Q
+3	895	0	3	Wirz, Mr. Albert	male	27	0	0	315154	8.6625	S
+4	896	1	3	Hirvonen, Mrs. Alexander (Helga E Lindqvist)	female	22	1	1	3101298	12.2875	S
+Performing Data Analysis
+# Performing statistics for each column
+t_data.describe()
+PassengerId	Survived	Pclass	Age	SibSp	Parch	Fare
+count	418.000000	418.000000	418.000000	418.000000	418.000000	418.000000	418.000000
+mean	1100.500000	0.363636	2.265550	30.198565	0.447368	0.392344	35.627188
+std	120.810458	0.481622	0.841838	12.637210	0.896760	0.981429	55.840500
+min	892.000000	0.000000	1.000000	0.000000	0.000000	0.000000	0.000000
+25%	996.250000	0.000000	1.000000	23.000000	0.000000	0.000000	7.895800
+50%	1100.500000	0.000000	3.000000	30.000000	0.000000	0.000000	14.454200
+75%	1204.750000	1.000000	3.000000	35.750000	1.000000	0.000000	31.500000
+max	1309.000000	1.000000	3.000000	76.000000	8.000000	9.000000	512.329200
+# Finding the number of people Survive or Not Survive from Dataset 
+t_data['Survived'].value_counts()
+0    266
+1    152
+Name: Survived, dtype: int64
+# Finding the number of males and females from Dataset 
+t_data['Sex'].value_counts()
+male      266
+female    152
+Name: Sex, dtype: int64
+Data Visualisation
+sb.set()
+# creating a Countplot for the 'Survived' Column
+sb.countplot(data = t_data,x ='Survived')
+<AxesSubplot:xlabel='Survived', ylabel='count'>
+
+# Plotting number of survivors based on Sex
+sb.countplot(x = 'Sex', hue = 'Survived', data = t_data)
+<AxesSubplot:xlabel='Sex', ylabel='count'>
+
+# creating a Countplot for the 'Pclass' Column
+sb.countplot(data = t_data,x ='Pclass')
+<AxesSubplot:xlabel='Pclass', ylabel='count'>
+
+# Plotting number of survivors based on Pclass
+sb.countplot(x = 'Pclass', hue = 'Survived', data = t_data)
+<AxesSubplot:xlabel='Pclass', ylabel='count'>
+
+Performing Encoding over Columns
+t_data['Sex'].value_counts()
+0    266
+1    152
+Name: Sex, dtype: int64
+t_data['Embarked'].value_counts()
+0    270
+1    102
+2     46
+Name: Embarked, dtype: int64
+# Coverting the columns into Categorical Columns
+t_data.replace({'Sex':{'male':0,'female':1}, 'Embarked':{'S':0, 'C':1, 'Q':2}}, inplace = True)
+t_data = t_data.drop(columns = 'Name',axis = 1)
+---------------------------------------------------------------------------
+KeyError                                  Traceback (most recent call last)
+~\AppData\Local\Temp\ipykernel_16520\652447648.py in <module>
+----> 1 t_data = t_data.drop(columns = 'Name',axis = 1)
+
+~\anaconda3\lib\site-packages\pandas\util\_decorators.py in wrapper(*args, **kwargs)
+    309                     stacklevel=stacklevel,
+    310                 )
+--> 311             return func(*args, **kwargs)
+    312 
+    313         return wrapper
+
+~\anaconda3\lib\site-packages\pandas\core\frame.py in drop(self, labels, axis, index, columns, level, inplace, errors)
+   4955                 weight  1.0     0.8
+   4956         """
+-> 4957         return super().drop(
+   4958             labels=labels,
+   4959             axis=axis,
+
+~\anaconda3\lib\site-packages\pandas\core\generic.py in drop(self, labels, axis, index, columns, level, inplace, errors)
+   4265         for axis, labels in axes.items():
+   4266             if labels is not None:
+-> 4267                 obj = obj._drop_axis(labels, axis, level=level, errors=errors)
+   4268 
+   4269         if inplace:
+
+~\anaconda3\lib\site-packages\pandas\core\generic.py in _drop_axis(self, labels, axis, level, errors, consolidate, only_slice)
+   4309                 new_axis = axis.drop(labels, level=level, errors=errors)
+   4310             else:
+-> 4311                 new_axis = axis.drop(labels, errors=errors)
+   4312             indexer = axis.get_indexer(new_axis)
+   4313 
+
+~\anaconda3\lib\site-packages\pandas\core\indexes\base.py in drop(self, labels, errors)
+   6659         if mask.any():
+   6660             if errors != "ignore":
+-> 6661                 raise KeyError(f"{list(labels[mask])} not found in axis")
+   6662             indexer = indexer[~mask]
+   6663         return self.delete(indexer)
+
+KeyError: "['Name'] not found in axis"
+t_data.head()
+PassengerId	Survived	Pclass	Sex	Age	SibSp	Parch	Ticket	Fare	Embarked
+0	892	0	3	0	34	0	0	330911	7.8292	2
+1	893	1	3	1	47	1	0	363272	7.0000	0
+2	894	0	2	0	62	0	0	240276	9.6875	2
+3	895	0	3	0	27	0	0	315154	8.6625	0
+4	896	1	3	1	22	1	1	3101298	12.2875	0
+Separating targert Feature from Others Features
+x = t_data.drop(columns = ['PassengerId', 'Ticket','Survived'],axis = 1)
+y = t_data['Survived']
+x.head()
+Pclass	Sex	Age	SibSp	Parch	Fare	Embarked
+0	3	0	34	0	0	7.8292	2
+1	3	1	47	1	0	7.0000	0
+2	2	0	62	0	0	9.6875	2
+3	3	0	27	0	0	8.6625	0
+4	3	1	22	1	1	12.2875	0
+y.head()
+0    0
+1    1
+2    0
+3    0
+4    1
+Name: Survived, dtype: int64
+Splitting dataset for Training and Testing
+x_train, x_test, y_train, y_test = train_test_split(x,y,test_size = 0.25,random_state = 3)
+x.shape, x_train.shape, x_test.shape
+((418, 7), (313, 7), (105, 7))
+Model Training
+model = LogisticRegression()
+# training the model with Training data
+model.fit(x_train, y_train)
+C:\Users\hp\anaconda3\lib\site-packages\sklearn\linear_model\_logistic.py:458: ConvergenceWarning: lbfgs failed to converge (status=1):
+STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
+
+Increase the number of iterations (max_iter) or scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  n_iter_i = _check_optimize_result(
+LogisticRegression()
+In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook.
+On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.
+Model Evaluation
+# Accuracy on training data
+x_train_prediction = model.predict(x_train)
+x_train_prediction
+array([1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0,
+       0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1,
+       1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0,
+       0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0,
+       1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1,
+       0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0,
+       0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1,
+       1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0,
+       0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0,
+       1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0,
+       0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0,
+       0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0,
+       1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+       0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0,
+       0, 0, 1, 0, 1], dtype=int64)
+accuracy_of_train_data = accuracy_score(y_train, x_train_prediction)
+print('Accuracy Score of Training data:',accuracy_of_train_data)
+Accuracy Score of Training data: 1.0
+# accuracy on test data
+x_test_prediction = model.predict(x_test)
+x_test_prediction
+array([0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+       0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1,
+       0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0,
+       1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+       1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1], dtype=int64)
+accuracy_of_test_data = accuracy_score(y_test, x_test_prediction)
+print('Accuracy Score of Testing data:',accuracy_of_test_data)
+Accuracy Score of Testing data: 1.0
+ 
+ 
