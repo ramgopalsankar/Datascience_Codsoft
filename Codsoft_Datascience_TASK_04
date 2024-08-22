@@ -1,151 +1,121 @@
 
-# This Python 3 environment comes with many helpful analytics libraries installed
-# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
-# For example, here's several helpful packages to load
-
-import numpy as np # linear algebra
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
-
-# Input data files are available in the read-only "../input/" directory
-# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
-
-import os
-for dirname, _, filenames in os.walk('/kaggle/input'):
-    for filename in filenames:
-        print(os.path.join(dirname, filename))
-
-# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All" 
-# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
-/kaggle/input/advertisingcsv/Advertising.csv
+Importing the Libraries and Dependencies
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt 
-import seaborn as sns
-import plotly.express as px
-df = pd.read_csv('/kaggle/input/advertisingcsv/Advertising.csv')
-df
-Unnamed: 0	TV	Radio	Newspaper	Sales
-0	1	230.1	37.8	69.2	22.1
-1	2	44.5	39.3	45.1	10.4
-2	3	17.2	45.9	69.3	9.3
-3	4	151.5	41.3	58.5	18.5
-4	5	180.8	10.8	58.4	12.9
-...	...	...	...	...	...
-195	196	38.2	3.7	13.8	7.6
-196	197	94.2	4.9	8.1	9.7
-197	198	177.0	9.3	6.4	12.8
-198	199	283.6	42.0	66.2	25.5
-199	200	232.1	8.6	8.7	13.4
-200 rows × 5 columns
-
-df.head()
-Unnamed: 0	TV	Radio	Newspaper	Sales
-0	1	230.1	37.8	69.2	22.1
-1	2	44.5	39.3	45.1	10.4
-2	3	17.2	45.9	69.3	9.3
-3	4	151.5	41.3	58.5	18.5
-4	5	180.8	10.8	58.4	12.9
-df.info()
+import matplotlib.pyplot as plt
+import seaborn as sb
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error,r2_score,mean_squared_error
+Data Collection and Processing
+# Loading the data from csv file and create Pandas DataFrame
+sales_data = pd.read_csv('advertising.csv')
+# print 5 rows of dataset.
+sales_data.head()
+TV	Radio	Newspaper	Sales
+0	230.1	37.8	69.2	22.1
+1	44.5	39.3	45.1	10.4
+2	17.2	45.9	69.3	12.0
+3	151.5	41.3	58.5	16.5
+4	180.8	10.8	58.4	17.9
+# print number of rows and columns 
+sales_data.shape
+(200, 4)
+# print the information of dataset
+sales_data.info()
 <class 'pandas.core.frame.DataFrame'>
 RangeIndex: 200 entries, 0 to 199
-Data columns (total 5 columns):
- #   Column      Non-Null Count  Dtype  
----  ------      --------------  -----  
- 0   Unnamed: 0  200 non-null    int64  
- 1   TV          200 non-null    float64
- 2   Radio       200 non-null    float64
- 3   Newspaper   200 non-null    float64
- 4   Sales       200 non-null    float64
-dtypes: float64(4), int64(1)
-memory usage: 7.9 KB
-df.columns
-Index(['Unnamed: 0', 'TV', 'Radio', 'Newspaper', 'Sales'], dtype='object')
-df.describe()
-Unnamed: 0	TV	Radio	Newspaper	Sales
-count	200.000000	200.000000	200.000000	200.000000	200.000000
-mean	100.500000	147.042500	23.264000	30.554000	14.022500
-std	57.879185	85.854236	14.846809	21.778621	5.217457
-min	1.000000	0.700000	0.000000	0.300000	1.600000
-25%	50.750000	74.375000	9.975000	12.750000	10.375000
-50%	100.500000	149.750000	22.900000	25.750000	12.900000
-75%	150.250000	218.825000	36.525000	45.100000	17.400000
-max	200.000000	296.400000	49.600000	114.000000	27.000000
-df.isnull().sum()
-Unnamed: 0    0
-TV            0
-Radio         0
-Newspaper     0
-Sales         0
+Data columns (total 4 columns):
+ #   Column     Non-Null Count  Dtype  
+---  ------     --------------  -----  
+ 0   TV         200 non-null    float64
+ 1   Radio      200 non-null    float64
+ 2   Newspaper  200 non-null    float64
+ 3   Sales      200 non-null    float64
+dtypes: float64(4)
+memory usage: 6.4 KB
+# find the number of missing values in each column
+sales_data.isnull().sum()
+TV           0
+Radio        0
+Newspaper    0
+Sales        0
 dtype: int64
-sns.pairplot(df)
-plt.show()
-/opt/conda/lib/python3.10/site-packages/seaborn/_oldcore.py:1119: FutureWarning: use_inf_as_na option is deprecated and will be removed in a future version. Convert inf values to NaN before operating instead.
-  with pd.option_context('mode.use_inf_as_na', True):
-/opt/conda/lib/python3.10/site-packages/seaborn/_oldcore.py:1119: FutureWarning: use_inf_as_na option is deprecated and will be removed in a future version. Convert inf values to NaN before operating instead.
-  with pd.option_context('mode.use_inf_as_na', True):
-/opt/conda/lib/python3.10/site-packages/seaborn/_oldcore.py:1119: FutureWarning: use_inf_as_na option is deprecated and will be removed in a future version. Convert inf values to NaN before operating instead.
-  with pd.option_context('mode.use_inf_as_na', True):
-/opt/conda/lib/python3.10/site-packages/seaborn/_oldcore.py:1119: FutureWarning: use_inf_as_na option is deprecated and will be removed in a future version. Convert inf values to NaN before operating instead.
-  with pd.option_context('mode.use_inf_as_na', True):
-/opt/conda/lib/python3.10/site-packages/seaborn/_oldcore.py:1119: FutureWarning: use_inf_as_na option is deprecated and will be removed in a future version. Convert inf values to NaN before operating instead.
-  with pd.option_context('mode.use_inf_as_na', True):
+Performing Data Analysis
+# Performing statistics for each column
+sales_data.describe() 
+TV	Radio	Newspaper	Sales
+count	200.000000	200.000000	200.000000	200.000000
+mean	147.042500	23.264000	30.554000	15.130500
+std	85.854236	14.846809	21.778621	5.283892
+min	0.700000	0.000000	0.300000	1.600000
+25%	74.375000	9.975000	12.750000	11.000000
+50%	149.750000	22.900000	25.750000	16.000000
+75%	218.825000	36.525000	45.100000	19.050000
+max	296.400000	49.600000	114.000000	27.000000
+Data Visualisation
+sales_data.hist(bins=50)
+array([[<AxesSubplot:title={'center':'TV'}>,
+        <AxesSubplot:title={'center':'Radio'}>],
+       [<AxesSubplot:title={'center':'Newspaper'}>,
+        <AxesSubplot:title={'center':'Sales'}>]], dtype=object)
 
-sns.pairplot(df, x_vars=['TV','Radio','Newspaper'], y_vars='Sales',  kind='scatter')
+sb.pairplot(sales_data, x_vars = ['Radio', 'Newspaper', 'TV'], y_vars = 'Sales', kind = 'scatter')
 plt.show()
 
-sns.pairplot(df, x_vars=['TV','Radio','Newspaper'], y_vars='Sales',  kind='reg')
+sb.heatmap(sales_data.corr(), annot = True)
 plt.show()
 
-sns.heatmap(df.corr(),annot=True)
-plt.show()
-
-TRAIN-TEST SPLIT
-When only TV is compared against Sales
-When Tv and Radio are compared against Sales
-from sklearn.model_selection import train_test_split
-x_train,x_test,y_train,y_test = train_test_split(df[['TV']],df[['Sales']],test_size=0.3,random_state=0)
-from sklearn.model_selection import train_test_split
-x1_train,x1_test,y1_train,y1_test = train_test_split(df[['TV','Radio']],df[['Sales']],test_size=0.3,random_state=0)
-MODEL BUILDING and PREDICTIONS
-When only TV is compared against Sales
-When Tv and Radio are compared against Sales
-WHEN TV IS COMPARED AGAINST SALES
-from sklearn.linear_model import LinearRegression
+Data Splitting into testing and training
+x = sales_data[['TV','Newspaper', 'Radio']]
+y = sales_data['Sales']
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.25, random_state = 0)
+x_train.head()
+TV	Newspaper	Radio
+71	109.8	31.7	14.3
+124	229.5	74.2	32.3
+184	253.8	30.0	21.3
+97	184.9	22.0	21.0
+149	44.7	20.6	25.8
+y_train.head()
+71     12.4
+124    19.7
+184    17.6
+97     20.5
+149    10.1
+Name: Sales, dtype: float64
+Model Training
 model = LinearRegression()
 model.fit(x_train,y_train)
 LinearRegression()
 In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook.
 On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.
-res = model.predict(x_test)
-from sklearn.metrics import mean_squared_error
-mse = mean_squared_error(y_test, res)
-rmse = np.sqrt(mse)
-mse
-7.497479593464674
-rmse
-2.7381525876883988
-from sklearn.metrics import r2_score
-r2 = r2_score(y_test, res)
-r2
-0.725606346597073
-WHEN BOTH TV AND RADIO ARE COMPARED AGAINST SALES
-from sklearn.linear_model import LinearRegression
-model = LinearRegression()
-model.fit(x1_train,y1_train)
-LinearRegression()
-In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook.
-On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.
-res = model.predict(x1_test)
-from sklearn.metrics import mean_squared_error
-mse = mean_squared_error(y1_test, res)
-rmse = np.sqrt(mse)
-mse
-3.6708096754914963
-rmse
-1.9159357179956473
-from sklearn.metrics import r2_score
-r2 = r2_score(y1_test, res)
-r2
-0.8656552691810044
-RESULTS
-We can observe that while predicting the Sales using both the TV and Radio as Features improves the R2-score.
+Model Evaluation
+y_pred = model.predict(x_test)
+print('Predicted Output:\n',y_pred)
+Predicted Output:
+ [10.69034418  8.68132435  9.59290052 24.88241319 14.68606352  8.36077587
+ 10.5898131  18.36838345  9.87359003 17.86306812 23.40835973 10.69153461
+ 13.38610616 17.09651474 11.7596204  13.31736836 21.13410725  9.13820326
+ 14.17420598 18.85121771 24.84655353 12.43749806 16.57128353 13.79857232
+  7.80827038 15.12861077 14.68386733 20.66548775 16.96644118  8.90614184
+ 12.38904935 20.8124535  21.26609738 21.84309375  7.18768267  7.06323314
+  9.23756125 15.58290474 13.29684701  7.27825284 10.96029997  9.12857882
+ 15.60175994 18.20653066 18.8457611  13.48625496  5.42016056 10.45332757
+ 15.51862918 10.94769952]
+model.score(x,y)*100
+90.22380089753528
+model.coef_
+array([ 5.34530806e-02, -4.37125135e-05,  1.10417563e-01])
+model.intercept_
+4.728630893324768
+print("R2_score of model: ", r2_score(y_test, y_pred))
+print("Mean Absolute Error of Model: ", mean_absolute_error(y_test, y_pred))
+print("Root Mean Squared Error of Model: ",np.sqrt(mean_squared_error(y_test, y_pred)))
+R2_score of model:  0.8718069474344206
+Mean Absolute Error of Model:  1.3405402421444605
+Root Mean Squared Error of Model:  1.9895610775935795
+plt.plot(y_pred)
+[<matplotlib.lines.Line2D at 0x12b4a0ed4c0>]
+
+ 
